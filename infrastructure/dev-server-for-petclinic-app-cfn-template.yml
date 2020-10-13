@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  This Cloudformation template runs dev server installed docker, docker-compose, Java 11, git and clones the project files from github. 
+Parameters:
+  KeyPairName:
+    Description: Enter name of your key pair for SSH Connections
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: Must be one of the existing KeyPairs
+  
+Resources:
+  DevServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH and other ports that is needed for petclinic app.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8888
+          ToPort: 8888
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8081
+          ToPort: 8081
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8761
+          ToPort: 8761
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8082
+          ToPort: 8082
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8083
+          ToPort: 8083
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9411
+          ToPort: 9411
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9090
+          ToPort: 9090
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 7979
+          ToPort: 7979
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9091
+          ToPort: 9091
+          CidrIp: 0.0.0.0/0
+  DevServer:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: ami-0947d2ba12ee1ff75 
+      InstanceType: t2.medium
+      KeyName: !Ref KeyPairName
+      SecurityGroupIds:
+        - !GetAtt DevServerSecurityGroup.GroupId
+      Tags:
+        - Key: Name
+          Value: Dev Server for Petclinic App
+
+      UserData:
+        Fn::Base64: 
+          !Sub |
+            #!/bin/bash
+            yum update -y
+            hostnamectl set-hostname petclinic-dev-server
+            amazon-linux-extras install docker -y
+            curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+            systemctl start docker
+            systemctl enable docker
+            usermod -a -G docker ec2-user
+            newgrp docker
+            yum install java-11-amazon-corretto -y
+            yum install git -y
+            cd /home/ec2-user
+            git clone https://github.com/mucahit-k/microservices-ci-cd-pipeline-with-petclinic-app.git
+
+Outputs:
+  DevServerDNSName:
+    Description: Dev Server's DNS Name
+    Value: !Sub 
+      - ${PublicAddress}
+      - PublicAddress: !GetAtt DevServer.PublicDnsName
