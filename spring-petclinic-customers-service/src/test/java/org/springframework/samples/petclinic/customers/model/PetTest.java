@@ -17,7 +17,7 @@ public class PetTest {
         //Arrange
         Pet pet = new Pet();
         Owner owner = new Owner();
-        owner.setFirstName("Much");
+        owner.setFirstName("Call");
         //Act
         pet.setOwner(owner);
         //Assert
