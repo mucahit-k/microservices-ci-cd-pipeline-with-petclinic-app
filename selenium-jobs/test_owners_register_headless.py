@@ -22,10 +22,10 @@ all_link.click()
 
 # Register new Owner to Petclinic App
 fn_field = driver.find_element_by_name('firstName')
-fn = 'Callahan' + str(random.randint(0, 100))
+fn = 'Mucahit' + str(random.randint(0, 100))
 fn_field.send_keys(fn)
 fn_field = driver.find_element_by_name('lastName')
-fn_field.send_keys('Clarusway')
+fn_field.send_keys('Koca')
 fn_field = driver.find_element_by_name('address')
 fn_field.send_keys('Ridge Corp. Street')
 fn_field = driver.find_element_by_name('city')
