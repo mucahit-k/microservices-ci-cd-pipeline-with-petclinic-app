@@ -12,10 +12,16 @@ chrome_options.add_argument("headless")
 driver = webdriver.Chrome(executable_path="/usr/bin/chromedriver", options=chrome_options)
 
 # Connect to the application
-url = "http://ec2-34-236-170-96.compute-1.amazonaws.com:8080"
+APP_IP = os.environ['MASTER_PUBLIC_IP']
+url = "http://"+APP_IP.strip()+":8080/"
+print(url)
 driver.get(url)
+sleep(2)
+
 vet_link = driver.find_element_by_link_text("VETERINARIANS")
 vet_link.click()
+sleep(2)
+
 
 # Verify that table loaded
 sleep(1)
